@@ -1,0 +1,390 @@
+/*
+I wrote this before I learned how widespread CSS variable support is nowadays.
+As is, it's nice that without variables, it works on slightly older browsers.
+For new projects, I'd use CSS variables at least for colors.
+*/
+
+/* General */
+
+html {
+    font: 18px/1.5 Cambria, Charter, "BT Charter", "DejaVu Serif", serif;
+}
+
+body {
+    background: #343;
+    color: #fff;
+    margin: 4em 0 5em;
+    padding: 0 1em;
+}
+
+body > * {
+    max-width: 37rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Headings */
+
+h1 {
+    font-weight: 400;
+    font-size: 1.5em;
+    margin: 4rem auto;
+    text-align: center;
+}
+
+h2::after {
+    content: '';
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.125);
+    height: 1ex;
+    flex-grow: 1;
+    margin-left: 1ch;
+}
+
+h2::before {
+    content: '';
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.125);
+    height: 1ex;
+    width: 1em;
+    margin-right: 1ch;
+}
+
+h2 {
+    font-weight: 400;
+    margin: 2em auto 1.5em;
+    font-size: 1em;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+p {
+    margin: 0.5em auto;
+}
+
+code, pre {
+    font: 16px/1.5rem "SF Mono", Menlo, Consolas, monospace;
+}
+
+abbr {
+    letter-spacing: 0.5px;
+}
+
+/* Appendix */
+
+#appendix {
+    max-width: 100%;
+    display: grid;
+    justify-content: center;
+    align-items: baseline;
+    row-gap: 2em;
+    column-gap: 1em;
+}
+
+#appendix > figcaption {
+    grid-column: 2;
+    max-width: 26rem;
+}
+
+#appendix > pre {
+    grid-column: 1;
+    margin: 0;
+}
+
+#appendix > .compute_fov {
+    grid-row: 2;
+}
+
+#appendix > .reveal {
+    grid-row: 3;
+}
+
+#appendix > .scan {
+    grid-row: 4;
+}
+
+#appendix > .quadrant {
+    grid-row: 5;
+}
+
+#appendix > .transform {
+    grid-row: 6;
+}
+
+#appendix > .row {
+    grid-row: 7;
+}
+
+#appendix > .tiles {
+    grid-row: 8;
+}
+
+#appendix > .slope {
+    grid-row: 9;
+}
+
+#appendix > .is_symmetric {
+    grid-row: 10;
+}
+
+#appendix > .round_ties {
+    grid-row: 11;
+}
+
+#appendix > .scan_iterative {
+    grid-row: 12;
+}
+
+#appendix svg {
+    display: block;
+    width: 80%;
+    margin: 1.5em auto;
+}
+
+#appendix .figure_wrapper svg {
+    width: 100%;
+    margin: 0;
+}
+
+#appendix > div {
+    width: 100%;
+    grid-column: 1 / span 2;
+    border: none;
+    z-index: -1;
+    display: flex;
+    align-items: baseline;
+}
+
+#appendix > div::after {
+    content: '';
+    flex-grow: 1;
+    height: 1ex;
+    background: rgba(255, 255, 255, 0.125);
+}
+
+/* Syntax highlighting */
+
+.python3 .op, .python3 .key {
+    color: #fd8;
+}
+
+.python3 .def {
+    color: #f8d;
+}
+
+.python3 .lit {
+    color: #fff;
+}
+
+.python3 .dot, .python3 .fn, .python3 self {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+}
+
+.python3 a.fn:hover {
+    color: #f8d;
+}
+
+pre {
+    margin: 0;
+}
+
+/* Example 2 */
+
+#example2 {
+    font: 16px "SF Mono", Menlo, Consolas, monospace;
+    width: 30ch;
+    height: 16ch;
+    user-select: none;
+    cursor: pointer;
+    position: relative;
+    margin: 0 auto;
+    clear: both;
+}
+
+#example2 + div {
+    display: flex;
+}
+
+#example2 + div input[type="range"] {
+    flex-grow: 1;
+    margin-left: 1em;
+}
+
+/* For elements that need to stay centered and don't want to shrink
+if the window gets too narrow. Eg certain images or diagrams */
+body > .fixed-width {
+    margin-left: 50%;
+    margin-right: 0;
+    transform: translateX(-50%);
+}
+
+svg, .foreground, .background {
+    user-select: none;
+}
+
+a {
+    color: #fff;
+    text-decoration-color: #fd8;
+    text-decoration-thickness: 0.5px;
+}
+
+a:hover {
+    color: #f8d;
+    text-decoration-color: #fd8;
+}
+
+/* Example 0 */
+
+body > label {
+    display: block;
+    text-align: end;
+}
+
+#example0 {
+    font: 16px "SF Mono", Menlo, Consolas, monospace;
+    width: 66ch;
+    height: 22ch;
+    user-select: none;
+    cursor: pointer;
+    position: relative;
+}
+
+#example0 * {
+    pointer-events: none;
+}
+
+#example0.hide-outlines svg {
+    display: none;
+}
+
+/* General examples */
+
+.background {
+    opacity: 0.25;
+}
+
+.foreground, .background {
+    letter-spacing: 1ch;
+    line-height: 2ch;
+    position: absolute;
+    top: 0;
+    /* letter spacing is applied after each letter, not evenly before and after,
+    so add a margin to balance it out */
+    margin-left: 0.5ch;
+}
+
+#walls, #walls2 {
+    fill: #343;
+    stroke: #fd8;
+    stroke-width: 0.5;
+    stroke-dasharray: 1;
+}
+
+#umbra {
+    fill: none;
+    stroke: #f8d;
+    stroke-width: 0.5;
+    stroke-dasharray: 1;
+}
+
+ul {
+    list-style-type: '⬩ ';
+}
+
+#example2wrapper {
+    display: flex;
+    min-width: 28em;
+    max-width: 100%;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    /* border-top: 1ch solid rgba(255, 255, 255, 0.125);
+    border-bottom: 1ch solid rgba(255, 255, 255, 0.125); */
+    /* padding: 1.5em 0; */
+    margin: 5em 0;
+}
+
+.line {
+    display: inline-block;
+    width: 100%;
+    line-height: initial;
+}
+
+#example2wrapper .current.line {
+    /* background: rgba(0, 0, 0, 0.25); */
+    outline: 0.5px solid #fff;
+}
+
+#start2, #end2 {
+    fill: none;
+    stroke: #f8d;
+    stroke-width: 0.5;
+    stroke-dasharray: 1;
+}
+
+#row2 {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 0.5;
+}
+
+#col2 {
+    fill: #000;
+}
+
+#example2wrapper #walls2 {
+    fill: none;
+}
+
+aside, label {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0.5em auto;
+}
+
+.figure_wrapper {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.figure_wrapper figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.expansive, .blind, .expanding {
+    font: 16px/1.5rem "SF Mono", Menlo, Consolas, monospace;
+    position: relative;
+    height: 9ch;
+    width: 14ch;
+    vertical-align: baseline;
+}
+
+.expanding {
+    height: 11ch;
+}
+
+/* Example 3 */
+#tiles_slope1, #tiles_slope2 {
+    width: 100%;
+}
+
+/* Example 4 */
+#example4 {
+    font: 16px "SF Mono", Menlo, Consolas, monospace;
+    width: 34ch;
+    height: 10ch;
+    user-select: none;
+    position: relative;
+}
+
+/* Example '5' */
+#example5 {
+    position: relative;
+}
+
+#example5 .foreground {
+    position: static;
+}

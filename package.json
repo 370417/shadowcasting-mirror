@@ -1,0 +1,33 @@
+{
+    "name": "recursive-shadowcasting",
+    "version": "1.0.0",
+    "description": "",
+    "private": true,
+    "main": "index.html",
+    "scripts": {
+        "test": "webpack-dev-server --config webpack.testconfig.js",
+        "build": "webpack",
+        "dev": "webpack-dev-server",
+        "minify-html": "html-minifier --collapse-whitespace --conservative-collapse --remove-comments dist/index.html > dist/index.min.html; mv dist/index.min.html dist/index.html",
+        "minify-css": "cleancss dist/style.css -o dist/style.css ",
+        "minify-js": "uglifyjs dist/bundle.js -c -m -o dist/bundle.js"
+    },
+    "author": "as-f",
+    "license": "ISC",
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^2.24.0",
+        "@typescript-eslint/parser": "^2.24.0",
+        "clean-css-cli": "^4.3.0",
+        "clean-webpack-plugin": "^3.0.0",
+        "copy-webpack-plugin": "^6.0.1",
+        "eslint": "^6.8.0",
+        "html-minifier": "^4.0.0",
+        "html-webpack-plugin": "^3.2.0",
+        "ts-loader": "^6.2.1",
+        "typescript": "^3.8.3",
+        "uglify-js": "^3.9.4",
+        "webpack": "^4.42.0",
+        "webpack-cli": "^3.3.11",
+        "webpack-dev-server": "^3.10.3"
+    }
+}

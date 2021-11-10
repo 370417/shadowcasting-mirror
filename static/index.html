@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8">
+    <title>Symmetric Shadowcasting</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><style>@media(prefers-color-scheme:dark){text{fill:%23fff}}</style><text y=%22.9em%22 font-size=%22100%22>❦</text></svg>">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <h1>Symmetric Shadowcasting</h1>
+
+    <p>
+        Shadowcasting is a common technique for calculating field of view.
+        With the right implementation, it is
+        <a href="#efficiency">fast</a>, <a href="#no_artifacts">consistent</a>, and <a href="#symmetry">symmetric</a>.
+    </p>
+
+    <label><input type="checkbox" checked id="outlines"> Show outlines</label>
+
+    <div id="example0" class="fixed-width">
+        <pre class="foreground">       #·     #####              
+       #··    #···#        ·#####
+···  ###····###···###   ·······  
+····················# ······#    
+        ····················#    
+            #···@···········#    
+        ·························
+   #················# ······#####
+   # ###····######·##   ····#    
+       #··        ··       ·#    
+       #·          ··            </pre>
+        <pre class="background">·#·#·#·  ·····     ·········#····
+·###·#·   ····     ········      
+   ··                ···       ··
+                     ·       ####
+········                     ····
+············                 ####
+·###····                         
+·#·                  ·           
+·#· ·                ···     ····
+·#·#·#·   ········  ·······  ####
+·#·#·#·  ··········  ············</pre>
+        <svg viewBox="0 0 330 110">
+<path d=" M 180 85 L 185 95 M 185 95 L 190 105 M 190 105 L 195 115 M 215 115 L 206.66666666666669 105 L 198.33333333333331 95 L 190 85 M 150 25 L 145 15 M 150 15 L 146.25 5 M 183.75 5 L 180 15 M 185 15 L 180 25 M 195 30 L 205 21.666666666666664 M 205 40 L 215 36.25 M 215 36.25 L 225 32.5 M 225 32.5 L 235 28.75 M 235 28.75 L 245 25 M 245 25 L 255 21.25 M 255 21.25 L 265 17.5 M 265 17.5 L 275 13.75 M 275 13.75 L 285 10 M 285 20 L 295 17.083333333333336 M 295 20 L 305 17.307692307692307 M 305 20 L 315 17.5 M 315 20 L 325 17.666666666666664 M 325 20 L 335 17.8125 M 335 19.583333333333336 L 325 21.666666666666664 L 315 23.75 L 305 25.833333333333336 L 295 27.916666666666664 L 285 30 M 285 60 L 295 60.41666666666667 M 295 60.41666666666667 L 305 60.83333333333333 M 305 60.83333333333333 L 315 61.25 M 315 61.25 L 325 61.66666666666667 M 325 61.66666666666667 L 335 62.08333333333333 M 335 70.9375 L 325 70 M 325 71 L 315 70 M 315 71.07142857142858 L 305 70 M 305 71.15384615384615 L 295 70 M 295 71.25 L 285 70 M 285 100 L 275 96.25 L 265 92.5 L 255 88.75 L 245 85 L 235 81.25 L 225 77.5 L 215 73.75 L 205 70 M 205 88.33333333333334 L 195 80 M 135 30 L 125 21.666666666666664 M 125 30 L 115 23.75 M 115 23.75 L 105 17.5 M 105 17.5 L 95 11.25 M 95 11.25 L 85 5 M 85 5 L 75 -1.25 M 75 30 L 65 27.22222222222222 M 65 30 L 55 27.5 M 55 30 L 45 27.72727272727273 M 45 27.72727272727273 L 35 25.454545454545453 M 35 25.454545454545453 L 25 23.181818181818183 M 25 23.181818181818183 L 15 20.909090909090907 M 15 20.909090909090907 L 5 18.636363636363637 M 5 18.636363636363637 L -5 16.363636363636363 M -5 33.75 L 5 35 L 15 36.25 L 25 37.5 L 35 38.75 L 45 40 L 55 41.25 L 65 42.5 L 75 43.75 L 85 45 L 95 46.25 L 105 47.5 L 115 48.75 L 125 50 M 125 60 L 115 61.25 M 115 61.25 L 105 62.5 M 105 62.5 L 95 63.75 M 95 63.75 L 85 65 M 85 65 L 75 66.25 M 75 66.25 L 65 67.5 M 65 67.5 L 55 68.75 M 55 68.75 L 45 70 M 45 70 L 35 71.25 M 35 84.54545454545455 L 45 82.27272727272727 L 55 80 M 55 82.5 L 65 80 M 65 82.77777777777777 L 75 80 M 75 111.25 L 85 105 L 95 98.75 L 105 92.5 L 115 86.25 L 125 80 M 125 88.33333333333334 L 135 80" id="umbra"></path>
+<path d="M 10 5 L 15 0 L 20 5 L 20 10 L 25 10 L 30 10 L 30 5 L 35 0 L 40 5 L 40 15 L 35 20 L 25 20 L 15 20 L 10 15 L 10 5 M 50 5 L 55 0 L 60 5 L 60 15 L 60 20 L 65 20 L 70 20 L 70 15 L 70 5 L 75 0 L 80 5 L 80 15 L 80 25 L 75 30 L 65 30 L 55 30 L 50 25 L 50 15 L 50 5 M 140 5 L 145 0 L 155 0 L 165 0 L 175 0 L 185 0 L 190 5 L 190 15 L 190 20 L 195 20 L 205 20 L 210 25 L 210 35 L 205 40 L 200 35 L 200 30 L 195 30 L 185 30 L 180 25 L 180 15 L 180 10 L 175 10 L 165 10 L 155 10 L 150 10 L 150 15 L 150 25 L 145 30 L 135 30 L 125 30 L 120 25 L 125 20 L 135 20 L 140 20 L 140 15 L 140 5 M 280 5 L 285 0 L 290 5 L 290 10 L 295 10 L 305 10 L 315 10 L 325 10 L 330 15 L 325 20 L 315 20 L 305 20 L 295 20 L 285 20 L 280 15 L 280 5 M 280 35 L 285 30 L 295 30 L 305 30 L 315 30 L 325 30 L 330 35 L 325 40 L 315 40 L 305 40 L 295 40 L 290 40 L 290 45 L 290 50 L 295 50 L 305 50 L 315 50 L 325 50 L 330 55 L 325 60 L 315 60 L 305 60 L 295 60 L 285 60 L 280 55 L 280 45 L 280 35 M 120 55 L 125 50 L 130 55 L 125 60 L 120 55 M 10 65 L 15 60 L 25 60 L 35 60 L 40 65 L 40 75 L 40 85 L 40 95 L 40 105 L 35 110 L 30 105 L 30 95 L 30 85 L 30 75 L 30 70 L 25 70 L 20 70 L 20 75 L 20 85 L 20 95 L 20 105 L 15 110 L 10 105 L 10 95 L 10 85 L 10 75 L 10 65 M 200 75 L 205 70 L 210 75 L 210 85 L 205 90 L 195 90 L 190 85 L 195 80 L 200 80 L 200 75 M 280 75 L 285 70 L 295 70 L 305 70 L 315 70 L 325 70 L 330 75 L 325 80 L 315 80 L 305 80 L 295 80 L 290 80 L 290 85 L 290 90 L 295 90 L 305 90 L 315 90 L 325 90 L 330 95 L 325 100 L 315 100 L 305 100 L 295 100 L 285 100 L 280 95 L 280 85 L 280 75 M 50 85 L 55 80 L 65 80 L 75 80 L 80 85 L 80 95 L 80 105 L 75 110 L 70 105 L 70 95 L 70 90 L 65 90 L 60 90 L 60 95 L 60 105 L 55 110 L 50 105 L 50 95 L 50 85 M 120 85 L 125 80 L 135 80 L 145 80 L 155 80 L 165 80 L 175 80 L 180 85 L 175 90 L 165 90 L 155 90 L 145 90 L 135 90 L 125 90 L 120 85" id="walls"></path>
+</svg>
+    </div>
+
+    <aside>
+        Click and drag to edit the grid.
+    </aside>
+
+    <h2>How it works</h2>
+
+    <p>
+        The best way to explain shadowcasting is to show it in action.
+        So here’s the core function of the algorithm. 
+        You can step through the code line by line with the slider and buttons below.
+        You can also use the arrow keys to navigate once the slider has focus.
+    </p>
+
+    <p>
+        A complete implementation is at the bottom of the page.
+        Click on any function to jump to its definition.
+    </p>
+
+    <div id="example2wrapper">
+        <pre><code class="python3">def scan(row):
+    prev_tile = None
+    for tile in row.tiles():
+        if is_wall(tile) or is_symmetric(row, tile):
+            reveal(tile)
+        if is_wall(prev_tile) and is_floor(tile):
+            row.start_slope = slope(tile)
+        if is_floor(prev_tile) and is_wall(tile):
+            next_row = row.next()
+            next_row.end_slope = slope(tile)
+            scan(next_row)
+        prev_tile = tile
+    if is_floor(prev_tile):
+        scan(row.next())
+    return</code></pre>
+
+        <div>
+            <div id="example2">
+                <pre class="foreground">       @
+         
+          
+           
+            
+             
+              
+               </pre>
+                <pre class="background">        
+      ···
+     ·#···
+    ·······
+   ######·##
+  ······#·#··
+ ·······#·#···
+········#·#····</pre>
+                <svg viewBox="0 0 150 80">
+                <path d="" id="col2" class="single" />
+                <path d="" id="row2" />
+                <path d="" id="start2" />
+                <path d="" id="end2" />
+                <path d="" id="walls2" />
+            </svg>
+            </div>
+
+            <div role="group">
+                <button id="prev2">&lt;</button>
+                <button id="next2">&gt;</button>
+                <input id="slider2" type="range" min="1" max="100" value="1">
+            </div>
+        </div>
+
+    </div>
+
+    <aside>
+        In the grid above,
+        the pink dashed lines show the current start and end slopes.
+        The white box outlines the current row.
+        The black square tracks the current tile.
+    </aside>
+
+    <h2>Why shadowcasting?</h2>
+
+    <p>
+        In his excellent <a href="http://www.adammil.net/blog/v125_Roguelike_Vision_Algorithms.html">Roguelike Vision
+            Algorithms</a> post,
+        Adam Milazzo lists six desirable properties for field of view algorithms:
+    </p>
+
+    <ul>
+        <li><a href="#symmetry">Symmetry</a></li>
+        <li><a href="#expansive_walls">Expansive walls</a></li>
+        <li><a href="#expanding_pillar_shadows">Expanding pillar shadows</a></li>
+        <li><a href="#no_blind_corners">No blind corners</a></li>
+        <li><a href="#no_artifacts">No artifacts</a></li>
+        <li><a href="#efficiency">Efficiency</a></li>
+    </ul>
+
+    <p>
+        Symmetric shadowcasting satisfies all six of these properties.
+        <!-- And it owes a lot to Adam’s original article,
+        particularly inspiration for beveled walls. -->
+    </p>
+
+    <p>
+        Also: Adam’s post is also where I first saw the idea to use beveled corners.
+        Our final algorithms are very similar, and if you
+        want something more permissive, you should check his article out.
+    </p>
+
+    <h2 id="symmetry">Symmetry</h2>
+
+    <p>
+        Symmetric shadowcasting has perfect symmetry between floor tiles.
+        If any floor tile A is in the field of view of a floor tile B,
+        then B will always be in the field of view of A.
+        This guarantee is enforced by the <code><a href="#is_symmetric">is_symmetric</a></code> function.
+    </p>
+
+    <p>
+        As is, the same guarantee doesn't hold for wall tiles.
+        For simplicity, the algorithm assumes the origin tile does not block vision.
+        But if you need to cast field of view from a wall tile
+        (perhaps for a wall-mounted torch),
+        you can get universal symmetry with some simple modifications to the algorithm.
+    </p>
+
+    <p>
+        When casting field of view from a floor tile, we model the origin as a point
+        centered in that tile.
+        And when scanning floor tiles, we model them as points centered in the tile
+        (see <code><a href="#is_symmetric">is_symmetric</a></code>).
+        But when scanning wall tiles, we model those as diamonds inscribed in the tile
+        (see <code><a href="#tiles">Row.tiles</a></code>).
+        So to maintain symmetry,
+        if the origin is a wall tile,
+        we must model it as a diamond.
+    </p>
+
+    <p>
+        Now that our origin (A) can be a diamond,
+        it can cast two types of shadows:
+        umbra (B) and penumbra (C).
+        In the penumbra, the origin is partially visible,
+        whereas in the umbra, it cannot be seen at all.
+    </p>
+
+    <div>
+        <svg viewBox="0 -50 500 250">
+            <defs>
+                <polygon id="diamond" points="-50,0 0,50 50,0 0,-50" stroke="#fd8" fill="#343" />
+                <polygon id="hollow_diamond" points="-50,0 0,50 50,0 0,-50" fill="#343" />
+                <polygon id="square" fill="#454" stroke="#343" stroke-width="2" points="-50,-50 -50,50 50,50 50,-50" />
+            </defs>
+            <use href="#square" x="50" y="0" />
+            <use href="#square" x="50" y="100" />
+            <use href="#square" x="50" y="200" />
+            <use href="#square" x="150" y="0" />
+            <use href="#square" x="150" y="100" />
+            <use href="#square" x="150" y="200" />
+            <use href="#square" x="250" y="0" />
+            <use href="#square" x="250" y="100" />
+            <use href="#square" x="250" y="200" />
+            <use href="#square" x="350" y="0" />
+            <use href="#square" x="350" y="100" />
+            <use href="#square" x="350" y="200" />
+            <use href="#square" x="450" y="0" />
+            <use href="#square" x="450" y="100" />
+            <use href="#square" x="450" y="200" />
+            <!-- penumbra -->
+            <path d="M250,50L450,-50h50V200H350L250,150L300,100Z" fill="rgba(0,0,0,0.4)" />
+            <line stroke="#f8d" x1="50" y1="150" x2="450" y2="-50" />
+            <line stroke="#f8d" x1="50" y1="50" x2="350" y2="200" />
+            <!-- umbra -->
+            <path d="M250,50H500v100H250L300,100Z" />
+            <line stroke="#f8d" x1="50" y1="150" x2="500" y2="150" />
+            <line stroke="#f8d" x1="50" y1="50" x2="500" y2="50" />
+            <use href="#diamond" x="50" y="100" fill="#343" />
+            <use href="#diamond" x="250" y="100" fill="#343" />
+            <!-- labels -->
+            <text fill="#fff" x="50" y="100" font-size="50px" dominant-baseline="central" text-anchor="middle">A</text>
+            <text fill="#fff" x="350" y="100" font-size="50px" dominant-baseline="central" text-anchor="middle">B</text>
+            <text fill="#fff" x="450" y="0" font-size="50px" dominant-baseline="central" text-anchor="middle">C</text>
+        </svg>
+    </div>
+
+    <p>
+        Tiles completely in the umbra obviously should not be in the field of view.
+        But tiles in the penumbra should be in the field of view,
+        for if we don’t include them, then they can see the origin, but not vice versa,
+        thus breaking symmetry.
+    </p>
+
+    <p>
+        So here are the modifications for casting field of view from a wall tile:
+    </p>
+
+    <ul>
+        <li>Make slopes originate from the edges of the tile instead of the center.</li>
+        <li>Change the comparisons in <code><a href="#is_symmetric">is_symmetric</a></code> to strict inequalities.</li>
+    </ul>
+
+    <div class="figure_wrapper">
+        <figure>
+            <svg viewBox="0 -50 400 300">
+            <use href="#square" x="50" y="0" />
+            <use href="#square" x="50" y="100" />
+            <use href="#square" x="50" y="200" />
+            <use href="#square" x="150" y="0" />
+            <use href="#square" x="150" y="100" />
+            <use href="#square" x="150" y="200" />
+            <use href="#square" x="250" y="0" />
+            <use href="#square" x="250" y="100" />
+            <use href="#square" x="250" y="200" />
+            <use href="#square" x="350" y="0" />
+            <use href="#square" x="350" y="100" />
+            <use href="#square" x="350" y="200" />
+            <use href="#square" x="450" y="0" />
+            <use href="#square" x="450" y="100" />
+            <use href="#square" x="450" y="200" />
+            <!-- quadrant -->
+            <!-- <line stroke="#f8d" x1="50" y1="50" x2="150" y2="-50" />
+            <line stroke="#f8d" x1="50" y1="150" x2="150" y2="250" /> -->
+            <!-- umbra -->
+            <path d="M250,50H400v100H250L300,100Z" />
+            <line stroke="#f8d" x1="50" y1="150" x2="400" y2="150" />
+            <line stroke="#f8d" x1="50" y1="50" x2="400" y2="50" />
+            <use href="#diamond" x="50" y="100" fill="#343" />
+            <use href="#diamond" x="250" y="100" fill="#343" />
+        </svg>
+        <figcaption>Field of view from a wall tile</figcaption>
+        </figure>
+        <figure>
+            <svg viewBox="0 -50 400 300">
+            <use href="#square" x="50" y="0" />
+            <use href="#square" x="50" y="100" />
+            <use href="#square" x="50" y="200" />
+            <use href="#square" x="150" y="0" />
+            <use href="#square" x="150" y="100" />
+            <use href="#square" x="150" y="200" />
+            <use href="#square" x="250" y="0" />
+            <use href="#square" x="250" y="100" />
+            <use href="#square" x="250" y="200" />
+            <use href="#square" x="350" y="0" />
+            <use href="#square" x="350" y="100" />
+            <use href="#square" x="350" y="200" />
+            <use href="#square" x="450" y="0" />
+            <use href="#square" x="450" y="100" />
+            <use href="#square" x="450" y="200" />
+            <!-- quadrant -->
+            <!-- <line stroke="#f8d" x1="50" y1="100" x2="200" y2="-50" />
+            <line stroke="#f8d" x1="50" y1="100" x2="200" y2="250" /> -->
+            <!-- umbra -->
+            <path d="M250,50L400,12.5v175L250,150L300,100Z" />
+            <line stroke="#f8d" x1="50" y1="100" x2="400" y2="187.5" />
+            <line stroke="#f8d" x1="50" y1="100" x2="400" y2="12.5" />
+            <use href="#diamond" x="250" y="100" fill="#343" />
+        </svg>
+        <figcaption>Field of view from a floor tile</figcaption>
+        </figure>
+    </div>
+
+    <h2 id="expansive_walls">Expansive walls</h2>
+
+    <p>
+        A field of view algorithm has expansive walls if, when standing in a convex room,
+        you can see all the wall tiles of the room. Symmetric shadowcasting has
+        expansive walls.
+    </p>
+    <div class="figure_wrapper">
+        <figure>
+            <div class="expansive">
+                <pre class="foreground">#######
+#·····#
+#@····#
+#######</pre>
+            </div>
+            <figcaption>Expansive walls</figcaption>
+        </figure>
+        <figure>
+            <div class="expansive">
+                <pre class="foreground">######
+#·····#
+#@····#
+####</pre>
+
+                <pre class="background">      #
+ 
+ 
+    ###</pre>
+            </div>
+            <figcaption>Non-expansive walls</figcaption>
+        </figure>
+    </div>
+    <p>
+        This particular non-expansive walls example comes from a shadowcasting
+        variant that checks <code><a href="#is_symmetric">is_symmetric</a></code>
+        for floor and wall tiles alike. That’s a quick and easy way to get
+        symmetry between floor and wall tiles, but it leads to odd-looking room corners,
+        as shown.
+    </p>
+
+    <h2 id="expanding_pillar_shadows">Expanding pillar shadows</h2>
+
+    <p>
+        Symmetric shadowcasting normally produces expanding pillar shadows.
+        The only exception comes with field of view originating from a wall tile.
+        Then, to maintain expansive walls, pillar shadows must be constant-width.
+    </p>
+
+    <div class="figure_wrapper">
+        <figure>
+            <div class="expanding">
+                <pre class="foreground">@······
+·#·····
+··  ···
+··    ·
+···</pre>
+
+<pre class="background"> 
+　
+  ··
+  ····
+   ····</pre>
+            </div>
+            <figcaption>Expanding shadows</figcaption>
+        </figure>
+        <figure>
+            <div class="expanding">
+                <pre class="foreground">@······
+·#·····
+·· ····
+··· ···
+···· ··</pre>
+
+                <pre class="background"> 
+ 
+  ·
+   ·
+    ·</pre>
+            </div>
+            <figcaption>Constant-width shadows</figcaption>
+        </figure>
+    </div>
+
+    <h2 id="no_blind_corners">No blind corners</h2>
+
+    <p>
+        In many roguelikes, the player can cut diagonally across a corner.
+        If doing so lands them next to a tile they couldn’t see, the corner is
+        a blind corner.
+        Symmetric shadowcasting does not have blind corners.
+    </p>
+
+    <div class="figure_wrapper">
+        <figure>
+            <div class="blind">
+                <pre class="foreground">···@···
+####···
+   #···
+   # ··</pre>
+                <pre class="background"> 
+ 
+···
+··· ·</pre>
+            </div>
+            <figcaption>Safe corner</figcaption>
+        </figure>
+        <figure>
+            <div class="blind">
+                <pre class="foreground">···@···
+####···
+   # ··
+   #  ·</pre>
+                <pre class="background"> 
+ 
+··· ·
+··· ··</pre>
+            </div>
+            <figcaption>Blind corner</figcaption>
+        </figure>
+    </div>
+
+    <p>
+        This example of a blind corner comes from shadowcasting without beveled walls.
+    </p>
+
+    <h2 id="no_artifacts">No artifacts</h2>
+
+    <p>
+        This implementation minimizes artifacts by avoiding approximation.
+        It uses rational numbers instead of floating point,
+        and it carefully controls rounding behavior.
+    </p>
+
+    <p>
+        Some approximation is inevitable.
+        After all, shadowcasting operates on a grid, not a full Euclidean plane.
+        For the most part, the grid provides intuitive-looking results.
+        The only exception arises around small gaps between walls;
+        sometimes the resulting field of view is discontinuous.
+    </p>
+
+    <div id="example4" class="fixed-width">
+        <pre class="foreground">@··#             
+··# ···          
+···     ·····    
+·····       ·····
+······          ·</pre>
+        <pre class="background">    ·············
+   ·   ··········
+   ·····     ····
+     ·······     
+      ·········· </pre>
+        <svg viewBox="160 50 170 50">
+<path d=" M 225 0 L 235 -9.16666666666667 M 235 0 L 245 -7.857142857142856 M 245 0 L 255 -6.875 M 255 0 L 265 -6.111111111111107 M 265 0 L 275 -5.499999999999998 M 275 0 L 285 -5 M 285 0 L 295 -4.58333333333333 M 295 0 L 305 -4.2307692307692335 M 305 0 L 315 -3.9285714285714324 M 315 0 L 325 -3.6666666666666625 M 325 0 L 335 -3.4375 M 335 26.666666666666664 L 325 28.333333333333336 L 315 30 L 305 31.666666666666664 L 295 33.333333333333336 L 285 35 L 275 36.66666666666667 L 265 38.33333333333333 L 255 40 L 245 41.66666666666667 L 235 43.33333333333333 L 225 45 L 215 46.66666666666667 L 205 48.33333333333333 L 195 50 M 195 60 L 205 61.66666666666667 M 205 61.66666666666667 L 215 63.33333333333333 M 215 63.33333333333333 L 225 65 M 225 65 L 235 66.66666666666667 M 235 66.66666666666667 L 245 68.33333333333333 M 245 68.33333333333333 L 255 70 M 255 70 L 265 71.66666666666667 M 265 71.66666666666667 L 275 73.33333333333333 M 275 73.33333333333333 L 285 75 M 285 75 L 295 76.66666666666666 M 295 76.66666666666666 L 305 78.33333333333334 M 305 78.33333333333334 L 315 80 M 315 80 L 325 81.66666666666666 M 325 81.66666666666666 L 335 83.33333333333334 M 335 97.5 L 325 95 L 315 92.5 L 305 90 L 295 87.5 L 285 85 L 275 82.5 L 265 80 L 255 77.5 L 245 75 L 235 72.5 L 225 70 L 215 67.5 L 205 65 L 195 62.5 L 185 60 M 185 70 L 195 77.5 M 195 77.5 L 205 85 M 205 85 L 215 92.5 M 215 92.5 L 225 100 M 225 100 L 235 107.5 M 235 107.5 L 245 115 M 245 117.85714285714285 L 235 110 M 235 119.16666666666669 L 225 110 M 105 0 L 95 -9.16666666666667 M 95 0 L 85 -7.857142857142856 M 85 0 L 75 -6.875 M 75 0 L 65 -6.111111111111107 M 65 0 L 55 -5.499999999999998 M 55 0 L 45 -5 M 45 0 L 35 -4.58333333333333 M 35 0 L 25 -4.2307692307692335 M 25 0 L 15 -3.9285714285714324 M 15 0 L 5 -3.6666666666666625 M 5 0 L -5 -3.4375 M -5 113.4375 L 5 110 M 5 113.66666666666667 L 15 110 M 15 113.92857142857142 L 25 110 M 25 114.23076923076923 L 35 110 M 35 114.58333333333331 L 45 110 M 45 115 L 55 110 M 55 115.5 L 65 110 M 65 116.11111111111111 L 75 110 M 75 116.875 L 85 110 M 85 117.85714285714285 L 95 110 M 95 119.16666666666669 L 105 110" id="umbra"></path>
+<path d="M 190 55 L 195 50 L 200 55 L 195 60 L 190 55 M 180 65 L 185 60 L 190 65 L 185 70 L 180 65" id="walls"></path>
+</svg>
+    </div>
+
+    <p>
+        This particular model comes with a big benefit:
+        it maps exactly to line of sight with <a
+        href="https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm">Bresenham’s algorithm</a>.
+        So if you can draw an unobstructed line between two floor tiles,
+        they are guaranteed be in each other’s field of view.
+        And if you can’t, they won’t be.
+    </p>
+    <p>
+        This means applications of line of sight like ranged combat will match field of view.
+        If you can target a tile symmetrically, you can see it, and vice versa.
+    </p>
+
+    <!-- <p>
+        Benefit: approximation matches the approxiation of Bresenham's algorithm
+    </p> -->
+
+    <!-- <p>
+        This implementation of shadowcasting follows a precise set of rules.
+        Since it controls rounding behavior and avoids floating point arithmetic,
+        it never encounters artifacts that break these rules.
+    </p>
+
+    <ul>
+        <li>Floor tiles are modeled as points centered in the tile.</li>
+        <li>Wall tiles are modeled as diamonds.</li>
+        <li>The origin tile casts an umbra (in Euclidean geometry).</li>
+        <li>A floor tile A is in the field of view of a tile B if the center of A is not in umbra.
+            If A’s center is on the edge of umbra,
+            it counts as visible only if B is a floor tile.
+        </li>
+        <li>A wall tile A is in the field of view of a tile B if some non-zero area of A is
+            not in umbra.
+        </li>
+    </ul>
+
+    <p>
+        Now, this world model might seem a bit arbitrary,
+        but its rules align very nicely with the geometry of the grid.
+        Suppose you want to 
+    </p>
+
+    <ul>
+        <li>A floor tile is visible if you can draw an unobstructed line
+            from the origin to the tile using <a
+                href="https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm">Bresenham’s algorithm</a>.
+        </li>
+        <li>A wall tile is visible if it obstructs a line that could otherwise reveal a floor tile.
+        </li>
+    </ul>
+
+    <p>Stuff to add:</p>
+
+    <ul>
+        <li>The big payoff: If your roguelike uses B’s algorithm for targeting, symmetric shadowcasting
+            will map very closely to targeting.
+        </li>
+        <li>
+            Beware rounding. Minimal example: two possible slope 1/2 lines
+        </li>
+        <li>
+            Free targeting/subsets of Bresenham lines don't count: eg slope 1/7 line
+            to target a doorway
+        </li>
+        <li>
+            discontinuous fov
+        </li>
+    </ul>
+
+    <p>
+        There are <a href="https://doi.org/10.1016/j.dam.2002.12.001">a lot of definitions</a> for
+        straight/balanced digital lines.
+        A digital line is an approximation of a line on a grid.
+        For our purposes, a digital line is straight if it can be produced by
+        <a href="https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm">Bresenham’s algorithm</a>.
+
+    </p> -->
+
+    <h2 id="efficiency">Efficiency</h2>
+
+    <p>
+        Shadowcasting tends to <a href="http://www.roguebasin.com/index.php?title=Comparative_study_of_field_of_view_algorithms_for_2D_grid_based_worlds">perform well</a> compared to other field of view algorithms.
+        If recursion poses a problem, a <a href="#scan_iterative">non-recursive replacement</a> for the <code>scan</code> function is at
+        the end of the page.
+    </p>
+
+    <h2>Prior art and other resources</h2>
+
+    <ul>
+        <li><a href="http://www.adammil.net/blog/v125_Roguelike_Vision_Algorithms.html">Roguelike Vision
+            Algorithms</a>, as mentioned earlier</li>
+        <li>Adam Milazzo’s list of desirable properties may have originated with PaulBlay’s <a href="http://angband.oook.cz/forum/showthread.php?p=20814#post20814">similar list</a></li>
+        <li>
+            Roguebasin’s <a href="http://www.roguebasin.com/index.php?title=Discussion:Field_of_Vision">Discussion:Field of Vision</a>
+            is a great resource for comparing different possible algorithms.
+            This variant of shadowcasting follows the <a href="http://www.roguebasin.com/index.php?title=Discussion:Field_of_Vision#Diamond_walls.2C_point_visibility">diamond walls, point visibility</a> model
+            with additional floor-wall symmetry rules to create expansive walls.
+        </li>
+        <li>
+            Björn Bergström wrote a great <a href="http://www.roguebasin.com/index.php?title=FOV_using_recursive_shadowcasting">article</a> explaining how recursive shadowcasting works. 
+        </li>
+        <li>
+            /r/roguelikedev has a couple FAQ Fridays on the subject of field of view:
+            <a href="https://www.reddit.com/r/roguelikedev/comments/358mt5/faq_friday_12_field_of_vision/">one</a>,
+            <a href="https://www.reddit.com/r/roguelikedev/comments/6hjbki/faq_fridays_revisited_12_field_of_vision/">two</a>.
+        </li>
+    </ul>
+
+    <h2>Full implementation</h2>
+
+    <figure id="appendix">
+        <pre class="import"><a id="Fraction"></a><a id="floor"></a><a id="ceil"></a><code class="python3">import math
+from fractions import Fraction</code></pre>
+
+        <pre class="compute_fov"><a id="is_blocking"></a><a id="mark_visible"></a><code class="python3">def compute_fov(origin, is_blocking, mark_visible):
+
+    mark_visible(*origin)
+
+    for i in range(4):
+        quadrant = Quadrant(i, origin)</code></pre>
+        <pre class="reveal"><code class="python3">        def reveal(tile):
+            x, y = quadrant.transform(tile)
+            mark_visible(x, y)
+
+        def is_wall(tile):
+            if tile is None:
+                return false
+            x, y = quadrant.transform(tile)
+            return is_blocking(x, y)
+
+        def is_floor(tile):
+            if tile is None:
+                return false
+            x, y = quadrant.transform(tile)
+            return not is_blocking(x, y)</code></pre>
+        <pre class="scan"><code class="python3">        def scan(row):
+            prev_tile = None
+            for tile in row.tiles():
+                if is_wall(tile) or is_symmetric(row, tile):
+                    reveal(tile)
+                if is_wall(prev_tile) and is_floor(tile):
+                    row.start_slope = slope(tile)
+                if is_floor(prev_tile) and is_wall(tile):
+                    next_row = row.next()
+                    next_row.end_slope = slope(tile)
+                    scan(next_row)
+                prev_tile = tile
+            if is_floor(prev_tile):
+                scan(row.next())
+
+        first_row = Row(1, Fraction(-1), Fraction(1))
+        scan(first_row)</code></pre>
+
+        <pre class="quadrant"><code class="python3">class Quadrant:
+
+    north = 0
+    east  = 1
+    south = 2
+    west  = 3
+
+    def __init__(self, cardinal, origin):
+        self.cardinal = cardinal
+        self.ox, self.oy = origin</code></pre>
+        <pre class="transform"><code class="python3">    def transform(self, tile):
+        row, col = tile
+        if self.cardinal == north:
+            return (self.ox + col, self.oy - row)
+        if self.cardinal == south:
+            return (self.ox + col, self.oy + row)
+        if self.cardinal == east:
+            return (self.ox + row, self.oy + col)
+        if self.cardinal == west:
+            return (self.ox - row, self.oy + col)</code></pre>
+        <pre class="row"><code class="python3">class Row:
+
+    def __init__(self, depth, start_slope, end_slope):
+        self.depth = depth
+        self.start_slope = start_slope
+        self.end_slope = end_slope</code></pre>
+        <pre class="tiles"><code class="python3">    def tiles(self):
+        min_col = round_ties_up(self.depth * self.start_slope)
+        max_col = round_ties_down(self.depth * self.end_slope)
+        for col in range(min_col, max_col + 1):
+            yield (self.depth, col)
+
+    def next(self):
+        return Row(
+            self.depth + 1,
+            self.start_slope,
+            self.end_slope)</code></pre>
+
+        <pre class="slope"><code class="python3">def slope(tile):
+    row_depth, col = tile
+    return Fraction(2 * col - 1, 2 * row_depth)</pre></code>
+
+        <pre class="is_symmetric"><code class="python3">def is_symmetric(row, tile):
+    row_depth, col = tile
+    return (col &gt;= row.depth * row.start_slope
+        and col &lt;= row.depth * row.end_slope)</code></pre>
+
+
+        <pre class="round_ties"><code class="python3">def round_ties_up(n):
+    return math.floor(n + 0.5)
+
+def round_ties_down(n):
+    return math.ceil(n - 0.5)</code></pre>
+
+        <pre class="scan_iterative"><code class="python3">def scan_iterative(row):
+    rows = [row]
+    while rows:
+        row = rows.pop()
+        prev_tile = None
+        for tile in row.tiles():
+            if is_wall(tile) or is_symmetric(row, tile):
+                reveal(tile)
+            if is_wall(prev_tile) and is_floor(tile):
+                row.start_slope = slope(tile)
+            if is_floor(prev_tile) and is_wall(tile):
+                next_row = row.next()
+                next_row.end_slope = slope(tile)
+                rows.append(next_row)
+            prev_tile = tile
+        if is_floor(prev_tile):
+            rows.append(row.next())
+</code></pre>
+
+        <figcaption class="compute_fov">
+            The entrypoint to the program.
+            Call this function to compute the field of view from an origin tile.
+
+            <p><code>origin:</code> an (x, y) tuple.
+            <!-- <br><code>is_blocking</code> and <code>mark_visible</code> are both functions
+            that take x and y coordinates as inputs. -->
+            <br><code>is_blocking(x, y):</code> returns true if the tile at <code>(x, y)</code>
+            blocks vision and false otherwise.
+            <br><code>mark_visible(x, y):</code> adds the tile at <code>(x, y)</code> to the field of view.</p>
+        </figcaption>
+
+        <figcaption class="reveal">
+            Within <code>compute_fov</code>, we define some local functions
+            that abstract away the details of quadrants from the
+            <code>scan</code> function.
+            The inputs to <code>reveal</code>, <code>is_wall</code>, and
+            <code>is_floor</code> are <code>(row, col)</code>
+            tuples representing positions relative to the current quadrant.
+            In contrast, the inputs to <code>is_blocking</code> and <code>mark_visible</code>
+            are <code>(x, y)</code> tuples representing absolute coordinates in the grid.
+        </figcaption>
+
+        <figcaption class="scan">
+            Scan a row and recursively scan all of its children.
+            If you think
+            of each quadrant as a tree of rows,
+            this essentially is a depth-first tree traversal.
+        </figcaption>
+
+        <figcaption class="quadrant">
+            A <code>Quadrant</code> represents a 90 degree sector pointing north, south,
+            east, or west. Quadrants are traversed row by row. For the east and west quadrants,
+            these “rows” are vertical, not horizontal.
+
+        </figcaption>
+
+        <figcaption class="transform">
+            Convert a <code>(row, col)</code> tuple representing a position relative to the
+
+            current quadrant into an <code>(x, y)</code> tuple representing an absolute
+
+            position in the grid.
+        </figcaption>
+
+        <figcaption class="row">
+            A <code>Row</code> represents a segment of tiles bound between a start and end slope.
+            <code>depth</code> represents the distance between the row and the quadrant’s origin.
+        </figcaption>
+
+        <figcaption class="tiles">
+            <code>tiles</code> returns an iterator over the tiles in the row.
+            This function considers a tile to be in the row if the sector swept out
+            by the row’s start and end slopes overlaps with a diamond inscribed in the tile.
+            If the diamond is only tangent to the sector, it does not become part of the row.
+            <svg viewBox="0 0 500 300">
+                <use href="#square" x="50" y="50"/>
+                <use href="#square" x="150" y="50"/>
+                <use href="#square" x="250" y="50"/>
+                <use href="#square" x="350" y="50"/>
+                <use href="#square" x="450" y="50"/>
+                <use href="#square" x="50" y="150"/>
+                <use href="#square" x="150" y="150"/>
+                <use href="#square" x="250" y="150"/>
+                <use href="#square" x="350" y="150"/>
+                <use href="#square" x="450" y="150"/>
+                <use href="#square" x="50" y="250"/>
+                <use href="#square" x="150" y="250"/>
+                <use href="#square" x="250" y="250"/>
+                <use href="#square" x="350" y="250"/>
+                <use href="#square" x="450" y="250"/>
+                <use class="inscribed" href="#hollow_diamond" x="50" y="250"/>
+                <use class="inscribed" href="#hollow_diamond" x="150" y="250"/>
+                <use class="inscribed" href="#hollow_diamond" x="250" y="250"/>
+                <use class="inscribed" href="#hollow_diamond" x="350" y="250"/>
+                <use class="inscribed" href="#hollow_diamond" x="450" y="250"/>
+                <line id="tiles_line1" x1="250" y1="50" x2="312.5" y2="300" stroke="#f8d" />
+                <line id="tiles_line2" x1="250" y1="50" x2="0" y2="300" stroke="#f8d" />
+                <!-- <text text-anchor="middle" dominant-baseline="middle" fill="#fff" x="250" y="50" style="font: 100px monospace">@</text> -->
+            </svg>
+            <input id="tiles_slope1" type="range" min="0" max="160" value="0">
+            <input id="tiles_slope2" type="range" min="0" max="160" value="100">
+        </figcaption>
+
+        <figcaption class="slope">
+            <code>slope</code> calculates new start and end slopes.
+            It’s used in two situations:
+            [1], if <code>prev_tile</code> (on the left) was a wall tile and <code>tile</code> (on the right) is a floor tile,
+            then the slope represents a start slope
+            and should be tangent to the right edge of the wall tile.
+            <div class="figure_wrapper">
+                <figure>
+                    <svg viewBox="0 100 200 100">
+                        <use href="#square" x="50" y="50" />
+                        <use href="#square" x="150" y="50" />
+                        <use href="#square" x="150" y="150" />
+                        <use href="#square" x="50" y="150" />
+                        <use href="#diamond" x="50" y="150" />
+                        <line x1="150" y1="50" x2="75" y2="200" stroke="#f8d" />
+                    </svg>
+                    <figcaption>[1]</figcaption>
+                </figure>
+                <figure>
+                    <svg viewBox="0 100 200 100">
+                        <use href="#square" x="50" y="50" />
+                        <use href="#square" x="150" y="50" />
+                        <use href="#square" x="150" y="150" />
+                        <use href="#square" x="50" y="150" />
+                        <use href="#diamond" x="150" y="150" />
+                        <line x1="150" y1="50" x2="75" y2="200" stroke="#f8d" />
+                    </svg>
+                    <figcaption>[2]</figcaption>
+                </figure>
+            </div>
+            [2], if <code>prev_tile</code> was a floor tile and <tile>tile</tile> is a wall tile,
+            then the slope represents an end slope
+            and should be tangent to the left edge of the wall tile.
+
+            <p>
+                In both situations, the line is tangent to the left edge of the current tile,
+                so we can use a single <code>slope</code> function for both start and end slopes.
+            </p>
+            <!-- <code>slope</code> calculates the start or end slope of new rows.
+            <code>slope</code> returns the slope of the line extending from the origin of the
+            current quadrant to the trailing edge of the given tile.
+            If the given tile is a wall tile, 
+            <p>In this diagram, the line shows the slope </p> -->
+        </figcaption>
+
+        <figcaption class="is_symmetric">
+            <code>is_symmetric</code> checks if a given floor tile can be seen symmetrically
+            from the origin. It returns true if the central point of the tile is in
+            the sector swept out by the row’s start and end slopes.
+            Otherwise, it returns false.
+        </figcaption>
+
+        <figcaption class="round_ties">
+            <code>round_ties_up</code> and <code>round_ties_down</code> round n to the nearest integer.
+            If n ends in .5, <code>round_ties_up</code> rounds up and <code>round_ties_down</code> rounds down.
+
+            Note: <code>round_ties_up</code> is not the same as Python’s <code>round</code>.
+            Python’s <code>round</code> will round away
+            from 0, resulting in unwanted behavior for negative numbers.
+        </figcaption>
+
+        <figcaption class="scan_iterative">
+            Non-recursive version of the algorithm. 
+        </figcaption>
+
+    </figure>
+    <p>
+        The full implementation is <a href="https://github.com/370417/symmetric-shadowcasting/blob/master/LICENSE.txt">licensed under CC0</a>. 
+    </p>
+    <script src="./bundle.js" async></script>
+</body>
+
+</html>
